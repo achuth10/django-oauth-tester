@@ -26,7 +26,18 @@ SECRET_KEY = 'django-insecure-fafoy6-(mcj$j-7^$$c+8erq(usvcqqyv8gy3p(!oy4u$$cg9+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.ngrok-free.app',  # Allow all ngrok domains
+]
+
+# CSRF Configuration for ngrok and local development
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://*.ngrok-free.app',  # Allow all ngrok HTTPS domains
+]
 
 
 # Application definition
@@ -171,6 +182,9 @@ OAUTH2_PROVIDER = {
     # Enable OpenID Connect
     'OIDC_ENABLED': True,
     'OIDC_RSA_PRIVATE_KEY': OIDC_RSA_PRIVATE_KEY,
+    
+    # Custom OIDC validator for Clerk-compatible claims
+    'OAUTH2_VALIDATOR_CLASS': 'api.oidc_validators.ClerkOIDCValidator',
 
     # Token expiration times (in seconds)
     'ACCESS_TOKEN_EXPIRE_SECONDS': 3600,  # 1 hour
@@ -184,6 +198,7 @@ OAUTH2_PROVIDER = {
         'openid': 'OpenID Connect scope',
         'profile': 'Access to profile information',
         'email': 'Access to email address',
+        'phone': 'Access to phone number',
 
         # Custom API scopes
         'contracts:read': 'Read access to contracts',
@@ -193,8 +208,8 @@ OAUTH2_PROVIDER = {
 
     'DEFAULT_SCOPES': ['openid', 'profile'],
 
-    # PKCE (Proof Key for Code Exchange) - Required for public clients
-    'PKCE_REQUIRED': True,
+    # PKCE (Proof Key for Code Exchange) - Optional for public clients
+    'PKCE_REQUIRED': False,
 
     # Refresh token behavior
     'ROTATE_REFRESH_TOKEN': True,
