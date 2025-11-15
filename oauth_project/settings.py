@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'api.middleware.CaptureOAuthParamsMiddleware',  # Capture OAuth params for SSO flows
     'oauth2_provider.middleware.OAuth2TokenMiddleware',  # OAuth2 token middleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -97,6 +98,30 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# ============================================================================
+# CACHE CONFIGURATION
+# ============================================================================
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'default-cache',
+    },
+    'auth_flow_cache': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'auth-flow-cache',
+        'TIMEOUT': 600,  # 10 minutes
+
+        # Production Redis configuration (uncomment when ready):
+        # 'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        # 'LOCATION': 'redis://127.0.0.1:6379/1',
+        # 'TIMEOUT': 600,
+        # 'OPTIONS': {
+        #     'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        # }
     }
 }
 
@@ -151,7 +176,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep for admin access
 ]
 
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '/api/auth/login/'
 
 # ============================================================================
 # DJANGO REST FRAMEWORK CONFIGURATION
